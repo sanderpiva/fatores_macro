@@ -1,2 +1,1 @@
-# Titanic no Streamlit
-Projeto Titanic no Streamlit
+# Projeto Final
