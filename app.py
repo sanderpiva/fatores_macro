@@ -54,7 +54,7 @@ with graph_expander:
         graphs_form_submitted = st.form_submit_button("Gerar")
 
 # === Página Principal ===
-st.header('Projeto Titanic', divider='blue')
+st.header('Projeto X', divider='blue')
 
 # Um markdown de múltiplas linhas
 data_meaning = '''
