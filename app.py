@@ -57,7 +57,7 @@ with graph_expander:
         graphs_form_submitted = st.form_submit_button("Gerar")
 
 # === Página Principal ===
-st.header('Projeto X', divider='blue')
+st.header('Projeto Fatores Macroeconomicos', divider='blue')
 
 # Um markdown de múltiplas linhas
 data_meaning = '''
@@ -88,16 +88,17 @@ if settings_form_submitted:
         st.markdown(data_meaning)
     
     if data_in_table_parcial:
-        st.subheader("Tabela da Dados", divider="gray")
+        st.subheader("Tabela da Dados Parcial", divider="gray")
         st.write(df_parcial)
     
     if data_in_table_final:
-        st.subheader("Tabela da Dados", divider="gray")
+        st.subheader("Tabela da Dados Final", divider="gray")
         st.write(df_final)
     
     if data_described:
-        st.subheader("Resumo dos Dados", divider="gray")
-        st.write(df.describe())
+        st.subheader("Resumo dos Dados Final", divider="gray")
+        st.write(df_final.info())
+        st.write(df_final.describe())
 
 # Ao submeter o form de gráficos
 if graphs_form_submitted:
