@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 import plotly.figure_factory as ff
+import io
 
 @st.cache_data
 def fetch_and_clean_data():
