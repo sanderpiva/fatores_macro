@@ -66,21 +66,16 @@ data_meaning = '''
 
 - `Variável`: Significado
 
-- `Survived`: Se o passageiro sobrevieu (0 = não, 1 = sim)
-- `Pclass`: Classe (1 = primeira classe, 2 = segunda classe, 3 = terceira classe)
-- `Sex`: Gênero
-- `Age`: Idade do Passageiro
-- `SibSp`: Número de irmãos/cônjuges a bordo
-- `Parch`: Número de pais/crianças a bordo
-- `Fare`: Tarifa paga pelo bilhete
-- `Embarked`: Porto de embarque (C = Cherbourg, Q = Queenstown, S = Southampton)
-- `Class`: Equivalente a `Pclass` (1 = 1ª classe, 2 = 2ª classe, 3 = 3ª classe)
-- `Who`: Categoria do passageiro (homem, mulher, criança)
-- `Adult_male`: Se o passageiro é um homem adulto ou não (Verdadeiro ou Falso)
-- `Deck`: Convés da cabine
-- `Embark_town`: Porto de embarque (Cherbourg, Queenstown, Southampton)
-- `Alive`: Status de sobrevivência (sim ou não)
-- `Alone`: Se o passageiro está sozinho ou não (Verdadeiro ou Falso)
+- `Data`: Data de referencia que relaciona os dados (06 out 2020 - 01 out 2025)
+- `Taxa Selic a.a.`: Taxa Selic em porcentual ao ano
+- `Taxa Cambio u.m.c./US$`: Taxa de câmbio unidade monetária corrente/US$
+- `CDS`: Risco Brasil CDS
+- `Itau`: Preco da ação (fechamento) do Itaú
+- `RETORNO_LOG_Itau`: Calculo retorno logaritmo para o preço da ação da Itau
+- `Petrobras`: Preco da ação (fechamento) da Petrobras
+- `RETORNO_LOG_Petrobras`: Calculo retorno logaritmo para o preço da ação da Petrobras
+- `Vale do Rio Doce`: Preco da ação (fechamento) da Vale Rio Doce
+- `RETORNO_LOG_Vale Rio Doce`: Calculo retorno logaritmo para o preço da ação da Vale
 '''
 
 # Ao submeter o form de dados tabulares
