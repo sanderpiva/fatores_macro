@@ -89,19 +89,19 @@ if settings_form_submitted:
         st.markdown(data_meaning)
     
     if data_in_table_parcial:
-        st.subheader("Tabela da Dados Parcial", divider="gray")
+        st.subheader("Tabela de Dados Parcial", divider="gray")
         st.write(df_parcial)
     
     if data_in_table_final:
-        st.subheader("Tabela da Dados Final", divider="gray")
+        st.subheader("Tabela de Dados Final", divider="gray")
         st.write(df_final)
     
     if data_described:
-        st.subheader("Resumo dos dados dataframe final", divider="gray")
+        st.subheader("Resumo dos dados: dataframe final", divider="gray")
         st.write(df_final.describe())
     
     if data_info:
-        st.subheader("Informação dos dados dataframe Final", divider="gray")
+        st.subheader("Informação dos dados: dataframe Final", divider="gray")
         st.write(df_final.info())
 
 # Ao submeter o form de gráficos
