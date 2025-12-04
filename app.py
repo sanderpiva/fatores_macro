@@ -102,7 +102,14 @@ if settings_form_submitted:
     
     if data_info:
         st.subheader("Informação dos dados: dataframe Final", divider="gray")
-        st.write(df_final.info())
+        # Cria um objeto para capturar a saída de texto
+        buffer_captura = io.StringIO()
+        
+        # Redireciona a saída impressa de .info() para o nosso buffer
+        df_final.info(buf=buffer_captura)
+        
+        # Exibe o conteúdo capturado na webapp Streamlit
+        st.code(buffer_captura.getvalue(), language='text')
 
 # Ao submeter o form de gráficos
 if graphs_form_submitted:
