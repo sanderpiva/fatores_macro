@@ -103,6 +103,12 @@ if settings_form_submitted:
     
     if data_info:
         st.subheader("Informação dos dados: dataframe Final", divider="gray")
+        #Garantindo a conversao da data em datatime
+        try:
+            df_final['Data'] = pd.to_datetime(df_final['Data'], errors='coerce')
+        except KeyError:
+            st.warning("Aviso: A coluna 'Data' não foi encontrada no DataFrame. Verifique o nome da coluna.")
+
         # Cria um objeto para capturar a saída de texto
         buffer_captura = io.StringIO()
         
