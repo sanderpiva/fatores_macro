@@ -37,41 +37,8 @@ with data_expander:
         # O botão de submissão é necessário para que as checagens acima sejam processadas
         settings_form_submitted = st.form_submit_button("Carregar")
 
-# --- 3. EXIBIÇÃO CONDICIONAL NO CORPO PRINCIPAL ---
-st.title("📊 Dashboard de Análise de Fatores Macro")
-
-# 3.1. Exibição do Significado dos Dados (Exemplo)
-if explain_data:
-    st.header("📚 Significado dos Dados")
-    st.info("Aqui você colocaria a documentação ou metadados de suas colunas e DataFrames.")
-    st.markdown("- **DataFrame Parcial:** Contém dados de Cédulas de Crédito e Variações... ")
-    st.markdown("- **DataFrame Final:** Inclui retornos logarítmicos e fatores macro consolidados... ")
-    st.markdown("---")
-
-
-# 3.2. Exibição da Tabela de Dados Parcial
-if data_in_table_parcial:
-    st.header("📋 Tabela de Dados Parcial")
-    # Usa st.dataframe para exibir a tabela
-    st.dataframe(df_parcial)
-    
-    if data_described:
-        st.subheader("Resumo Estatístico (Parcial)")
-        st.dataframe(df_parcial.describe(include='all'))
-    st.markdown("---")
-
-
-# 3.3. Exibição da Tabela de Dados Final
-if data_in_table_final:
-    st.header("📋 Tabela de Dados Final")
-    # Usa st.dataframe para exibir a tabela
-    st.dataframe(df_final)
-
-    if data_described:
-        st.subheader("Resumo Estatístico (Final)")
-        st.dataframe(df_final.describe(include='all'))
-    st.markdown("---")
 #
+
 graph_expander = st.sidebar.expander("# **Gráficos**", icon=":material/monitoring:")
 # st.sidebar.subheader('Gráficos')
 with graph_expander:
@@ -120,9 +87,13 @@ if settings_form_submitted:
         st.subheader("Dicionário dos Dados", divider="gray")
         st.markdown(data_meaning)
     
-    if data_in_table:
+    if data_in_table_parcial:
         st.subheader("Tabela da Dados", divider="gray")
-        st.write(df)
+        st.write(df_parcial)
+    
+    if data_in_table_final:
+        st.subheader("Tabela da Dados", divider="gray")
+        st.write(df_final)
     
     if data_described:
         st.subheader("Resumo dos Dados", divider="gray")
