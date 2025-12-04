@@ -6,36 +6,72 @@ import plotly.figure_factory as ff
 
 @st.cache_data
 def fetch_and_clean_data():
-    # Recupera e limpa os dados
-    d_frame = pd.read_csv('https://raw.githubusercontent.com/emerson-prof-carvalho/ciencia-de-dados-arquivos/refs/heads/main/datasets/titanic.csv')
+    url_parcial = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/parcial_merged_dfs_cds.csv'
+    url_final = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/final_merged_dfs_with_log_returns.csv'
     
-    d_frame_cleaned = d_frame.drop(columns=['deck', 'embark_town', 'alive', 'alone'])
-    
-    # fillna remove valores nulos/vavios do dataframe passado
-    # implace é para substituir no prórpio dataframe
-    d_frame_cleaned['age'].fillna(d_frame['age'].mean(), inplace=True)
+    try:
+        d_frame_parcial = pd.read_csv(url_parcial)
+        d_frame_final = pd.read_csv(url_final)
+        return d_frame_parcial, d_frame_final
+    except Exception as e:
+        st.error(f"Erro ao carregar os dados: {e}")
+        # Retorna DataFrames vazios em caso de erro para não quebrar o resto do app
+        return pd.DataFrame(), pd.DataFrame()
 
-    # mode retona a moda (valor mais frequente)
-    d_frame_cleaned['embarked'].fillna(d_frame_cleaned['embarked'].mode()[0], inplace=True)
+# Carrega os DataFrames (apenas uma vez, graças ao cache)
+df_parcial, df_final = fetch_and_clean_data()
 
-    return d_frame_cleaned
-
-df = fetch_and_clean_data()
-
-# === Barra Lateral ===
+# --- 2. BARRA LATERAL (Seu Código Adaptado) ---
 st.sidebar.header('Configurações', divider='blue')
 
 data_expander = st.sidebar.expander(label="# **Dados Tabulares**", icon=":material/table:")
 with data_expander:
-    # Formulário dos filtros
+    # O form é crucial para agrupar as ações de filtro e só atualizar a tela quando o botão for pressionado
     with st.form("settings_form", clear_on_submit=False):
-        explain_data = st.checkbox("Significado dos Dados")
-        data_in_table = st.checkbox("Exibir Tabela de Dados")
-        data_described = st.checkbox("Resumir Dados")
+        st.markdown("**Selecione as Visualizações**")
+        explain_data = st.checkbox("Significado dos Dados", key="explain")
+        data_in_table_parcial = st.checkbox("Exibir Tabela de Dados Parcial", key="table_parcial")
+        data_in_table_final = st.checkbox("Exibir Tabela de Dados Final", key="table_final")
+        data_described = st.checkbox("Resumir Dados (Describe)", key="describe")
         
-        # Todo form precisa de um botão de submit, que guarda se ele foi submetido ou não
+        # O botão de submissão é necessário para que as checagens acima sejam processadas
         settings_form_submitted = st.form_submit_button("Carregar")
 
+# --- 3. EXIBIÇÃO CONDICIONAL NO CORPO PRINCIPAL ---
+st.title("📊 Dashboard de Análise de Fatores Macro")
+
+# 3.1. Exibição do Significado dos Dados (Exemplo)
+if explain_data:
+    st.header("📚 Significado dos Dados")
+    st.info("Aqui você colocaria a documentação ou metadados de suas colunas e DataFrames.")
+    st.markdown("- **DataFrame Parcial:** Contém dados de Cédulas de Crédito e Variações... ")
+    st.markdown("- **DataFrame Final:** Inclui retornos logarítmicos e fatores macro consolidados... ")
+    st.markdown("---")
+
+
+# 3.2. Exibição da Tabela de Dados Parcial
+if data_in_table_parcial:
+    st.header("📋 Tabela de Dados Parcial")
+    # Usa st.dataframe para exibir a tabela
+    st.dataframe(df_parcial)
+    
+    if data_described:
+        st.subheader("Resumo Estatístico (Parcial)")
+        st.dataframe(df_parcial.describe(include='all'))
+    st.markdown("---")
+
+
+# 3.3. Exibição da Tabela de Dados Final
+if data_in_table_final:
+    st.header("📋 Tabela de Dados Final")
+    # Usa st.dataframe para exibir a tabela
+    st.dataframe(df_final)
+
+    if data_described:
+        st.subheader("Resumo Estatístico (Final)")
+        st.dataframe(df_final.describe(include='all'))
+    st.markdown("---")
+#
 graph_expander = st.sidebar.expander("# **Gráficos**", icon=":material/monitoring:")
 # st.sidebar.subheader('Gráficos')
 with graph_expander:
