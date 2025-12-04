@@ -32,8 +32,8 @@ with data_expander:
         explain_data = st.checkbox("Significado dos Dados", key="explain")
         data_in_table_parcial = st.checkbox("Exibir Tabela de Dados Parcial", key="table_parcial")
         data_in_table_final = st.checkbox("Exibir Tabela de Dados Final", key="table_final")
-        data_info = st.checkbox("Informações Dados", key="info")
-        data_described = st.checkbox("Resumir Dados (Describe)", key="describe")
+        data_info = st.checkbox("Informações dataframe final", key="info")
+        data_described = st.checkbox("Resumir dados dataframe final (Describe)", key="describe")
         
         # O botão de submissão é necessário para que as checagens acima sejam processadas
         settings_form_submitted = st.form_submit_button("Carregar")
@@ -97,11 +97,11 @@ if settings_form_submitted:
         st.write(df_final)
     
     if data_described:
-        st.subheader("Resumo dos Dados Final", divider="gray")
+        st.subheader("Resumo dos dados dataframe final", divider="gray")
         st.write(df_final.describe())
     
     if data_info:
-        st.subheader("Informação dos Dados Final", divider="gray")
+        st.subheader("Informação dos dados dataframe Final", divider="gray")
         st.write(df_final.info())
 
 # Ao submeter o form de gráficos
