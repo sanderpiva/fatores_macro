@@ -8,7 +8,6 @@ import numpy as np
 import statsmodels.api as sm
 
 @st.cache_data
-@st.cache_data
 def fetch_and_clean_data():
     url_parcial = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/parcial_merged_dfs_cds.csv'
     url_final = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/final_merged_dfs_with_log_returns.csv'
