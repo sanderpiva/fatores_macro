@@ -4,6 +4,7 @@ import seaborn as sns
 import streamlit as st
 import plotly.figure_factory as ff
 import io
+import re
 import numpy as np
 import statsmodels.api as sm
 
@@ -18,35 +19,28 @@ def fetch_and_clean_data():
         d_frame_parcial = pd.read_csv(url_parcial)
         d_frame_final = pd.read_csv(url_final)
         
-        # --- REMOVIDA TODA A LÓGICA DE CÁLCULO E ARREDONDAMENTO ---
-        # O Streamlit apenas carrega os dados já prontos do CSV
-        
         return d_frame_parcial, d_frame_final
         
     except Exception as e:
-        # Este bloco agora captura apenas falhas de carregamento de URL/Rede
         st.error(f"Erro ao carregar os dados. Verifique a URL ou o formato: {e}")
         return pd.DataFrame(), pd.DataFrame()
-# Carrega os DataFrames (apenas uma vez, graças ao cache)
+
 df_parcial, df_final = fetch_and_clean_data()
 
+#
 def run_macro_model(df, target_cols, X_cols):
     """
     Roda a Regressão OLS de forma robusta, aceitando uma lista dinâmica de variáveis preditoras (X_cols).
     """
-    # 0. Verificação de Dados (Guardrail para DF vazio)
     if df.empty:
         return {'Erro Geral': 'DataFrame final está vazio. Não é possível rodar o modelo.'}
     
-    # Colunas necessárias para o modelo (X e Y)
     required_macro_cols = X_cols
     required_cols = required_macro_cols + target_cols
     
-    # 1. Verificação explícita de cada coluna ausente
     missing_cols = [col for col in required_cols if col not in df.columns]
     
     if missing_cols:
-        # Retorna a mensagem de diagnóstico em caso de colunas faltando
         error_message = f"""
         Erro: O modelo OLS não pode ser executado com as variáveis {X_cols}.
         
@@ -56,21 +50,15 @@ def run_macro_model(df, target_cols, X_cols):
         Colunas disponíveis no DataFrame:
         {df.columns.tolist()}
         """
-        # O Streamlit exibirá esta mensagem no lugar dos resultados da regressão
         return {'KeyError Isolado - Dados Faltando': error_message}
-
-    # Se as colunas existem, prosseguimos com o modelo
-    
-    # 2. Limpeza de Dados:
+   
     df_cleaned = df.dropna(subset=required_cols)
     
-    # 3. Definição das Variáveis Preditoras (X)
     X = df_cleaned[required_macro_cols]
     X = sm.add_constant(X) 
     
     results = {}
     
-    # 4. Rodar e Armazenar os Modelos (Loop OLS)
     for y_var in target_cols:
         Y = df_cleaned[y_var]
         try:
@@ -147,7 +135,7 @@ data_meaning = '''
 acoes_retorno = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce'] 
 
 # Variáveis preditoras (X)
-X_macro_sc_cds = ['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo 1
+X_macro_sc_cds = ['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo 1
 X_macro_c_cds = ['RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo 2
 
 
@@ -171,34 +159,27 @@ if settings_form_submitted:
     
     if data_info:
         st.subheader("Informação dos dados: dataframe Final", divider="gray")
-        #Garantindo a conversao da data em datatime
         try:
             df_final['Data'] = pd.to_datetime(df_final['Data'], errors='coerce')
         except KeyError:
             st.warning("Aviso: A coluna 'Data' não foi encontrada no DataFrame. Verifique o nome da coluna.")
 
-        # Cria um objeto para capturar a saída de texto
         buffer_captura = io.StringIO()
         
-        # Redireciona a saída impressa de .info() para o nosso buffer
         df_final.info(buf=buffer_captura)
         
-        # Exibe o conteúdo capturado na webapp Streamlit
         st.code(buffer_captura.getvalue(), language='text')
     
     if model_selic_cambio_cds:
         st.subheader("Modelo Selic + Câmbio + CDS", divider="gray") 
     
-        # Executa o modelo, PASSANDO AS VARIÁVEIS X CORRETAS
         model_results = run_macro_model(df_final.copy(), acoes_retorno, X_macro_sc_cds)
         
-        # Exibe os resultados
         for acao, summary_text in model_results.items():
             st.markdown(f"### Resultados da Regressão para: **{acao}**")
             st.code(summary_text, language='text')
 
-            # Interpretação do R-Quadrado
-            import re
+            
             r_sq_match = re.search(r'R-squared:\s+(\d\.\d+)', summary_text)
             
             if r_sq_match:
@@ -210,23 +191,20 @@ if settings_form_submitted:
     if model_cambio_cds:
         st.subheader("Modelo Câmbio + CDS (Adotado)", divider="gray")
         
-        # Executa o modelo, PASSANDO AS VARIÁVEIS X CORRETAS
         model_results = run_macro_model(df_final.copy(), acoes_retorno, X_macro_c_cds)
     
-        # Exibe os resultados
         for acao, summary_text in model_results.items():
             st.markdown(f"### Resultados da Regressão para: **{acao}**")
             st.code(summary_text, language='text')
 
-            # Interpretação do R-Quadrado
-            import re
+            
             r_sq_match = re.search(r'R-squared:\s+(\d\.\d+)', summary_text)
             
             if r_sq_match:
                 r_squared = float(r_sq_match.group(1))
                 st.info(f"O **$R^2$ (Coeficiente de Determinação)** para **{acao}** é de **{r_squared:.4f}**.")
                 st.caption("Este valor indica a porcentagem da variação no Retorno da Ação que é explicada pelas variáveis macroeconômicas (Câmbio e CDS).")
-        
+
 #
 
 # Ao submeter o form de gráficos
