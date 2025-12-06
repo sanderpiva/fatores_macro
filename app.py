@@ -9,29 +9,20 @@ import statsmodels.api as sm
 
 @st.cache_data
 def fetch_and_clean_data():
+    # ATUALIZE ESTE LINK para apontar para o seu novo CSV COMPLETO
     url_parcial = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/parcial_merged_dfs_cds.csv'
-    url_final = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/final_merged_dfs_with_log_returns.csv'
+    url_final_pronto = 'https://github.com/sanderpiva/fatores_macro_docs/blob/main/resultados_modelo_json/df_final_model.csv' # 
     
     try:
         d_frame_parcial = pd.read_csv(url_parcial)
-        d_frame_final = pd.read_csv(url_final)
-        
-        # --- MOVEMOS AS TRANSFORMAÇÕES PARA DEPOIS DE LER OS DADOS ---
-        # Isso garante que as colunas só sejam criadas se a leitura do CSV for OK
-        d_frame_final['RETORNO_LOG_CAMBIO'] = np.log(d_frame_final['Taxa Cambio u.m.c./US$'] / 
-                                                     d_frame_final['Taxa Cambio u.m.c./US$'].shift(1))
-        
-        d_frame_final['RETORNO_LOG_CDS'] = np.log(d_frame_final['CDS'] / 
-                                                   d_frame_final['CDS'].shift(1))
-        # -----------------------------------------------------------------
+        # LER O ARQUIVO QUE JÁ CONTÉM AS COLUNAS PRONTAS
+        d_frame_final = pd.read_csv(url_final_pronto)
         
         return d_frame_parcial, d_frame_final
         
     except Exception as e:
-        # Se falhar, exibe o erro e retorna DataFrames vazios
-        st.error(f"Erro ao carregar os dados. Verifique a URL ou o formato: {e}")
+        st.error(f"Erro ao carregar os dados. Verifique a nova URL ou o formato: {e}")
         return pd.DataFrame(), pd.DataFrame()
-
 # Carrega os DataFrames (apenas uma vez, graças ao cache)
 df_parcial, df_final = fetch_and_clean_data()
 
