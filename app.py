@@ -186,7 +186,8 @@ if settings_form_submitted:
                 r_squared = float(r_sq_match.group(1))
                 st.info(f"O **$R^2$ (Coeficiente de Determinação)** para **{acao}** é de **{r_squared:.4f}**.")
                 st.caption("Este valor indica a porcentagem da variação no Retorno da Ação que é explicada pelas variáveis macroeconômicas (Selic, Câmbio e CDS).")
-
+        
+        st.write("Esse modelo foi descartado, pois a regra p < 0.05 não é atendida em todos os casos. Exemplo: Para a Vale do Rio Doce, a Taxa Selic a.a. teve p > 0.05")
 
     if model_cambio_cds:
         st.subheader("Modelo Câmbio + CDS (Adotado)", divider="gray")
@@ -204,6 +205,10 @@ if settings_form_submitted:
                 r_squared = float(r_sq_match.group(1))
                 st.info(f"O **$R^2$ (Coeficiente de Determinação)** para **{acao}** é de **{r_squared:.4f}**.")
                 st.caption("Este valor indica a porcentagem da variação no Retorno da Ação que é explicada pelas variáveis macroeconômicas (Câmbio e CDS).")
+        
+        st.write("oferece o melhor equilíbrio entre simplicidade e capacidade de explicar a variação nos retornos das ações;")
+        st.write("Ambas as variáveis, (RETORNO_LOG_CAMBIO e RETORNO_LOG_CDS são estatisticamente significativas (p < 0.05) para os três ativos;")
+        st.write("Multicolinearidade aceitável: A multicolinearidade (Cond. No.  ≈121 ) entre Câmbio e CDS indica que eles se movem juntos, dificultando a interpretação isolada do efeito de cada um, porém não a capacidade preditiva do modelo como um todo;")
 
 #
 
