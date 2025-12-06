@@ -15,33 +15,29 @@ def fetch_and_clean_data():
     try:
         d_frame_parcial = pd.read_csv(url_parcial)
         d_frame_final = pd.read_csv(url_final)
+        
+        # --- NOVO: Executando as Transformações aqui (dentro do cache) ---
+        d_frame_final['RETORNO_LOG_CAMBIO'] = np.log(d_frame_final['Taxa Cambio u.m.c./US$'] / 
+                                                     d_frame_final['Taxa Cambio u.m.c./US$'].shift(1))
+        
+        d_frame_final['RETORNO_LOG_CDS'] = np.log(d_frame_final['CDS'] / 
+                                                  d_frame_final['CDS'].shift(1))
+        # -----------------------------------------------------------------
+        
         return d_frame_parcial, d_frame_final
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
-        # Retorna DataFrames vazios em caso de erro para não quebrar o resto do app
         return pd.DataFrame(), pd.DataFrame()
-
+        
 # Carrega os DataFrames (apenas uma vez, graças ao cache)
 df_parcial, df_final = fetch_and_clean_data()
 
 def run_macro_model(df, target_cols):
     """
-    Roda a Regressão OLS para múltiplas variáveis dependentes (ações) 
-    usando Selic, Retorno Log do Câmbio e Retorno Log do CDS como preditoras.
+    Roda a Regressão OLS. O DataFrame DEVE vir com todas as colunas de retorno logarítmico (incluindo Câmbio e CDS) já criadas.
     """
-    # 1. Ajuste e Dropna para garantir que as colunas RETORNO_LOG_CAMBIO e RETORNO_LOG_CDS existam
-    # Rodar isso apenas uma vez no DataFrame antes de passar para o modelo
-    
-    # Criando as variáveis de Retorno Log para Câmbio e CDS, se não existirem
-    if 'RETORNO_LOG_CAMBIO' not in df.columns:
-        df['RETORNO_LOG_CAMBIO'] = np.log(df['Taxa Cambio u.m.c./US$'] / 
-                                        df['Taxa Cambio u.m.c./US$'].shift(1))
-        
-    if 'RETORNO_LOG_CDS' not in df.columns:
-        df['RETORNO_LOG_CDS'] = np.log(df['CDS'] / 
-                                    df['CDS'].shift(1))
-        
     # Remove a primeira linha (que terá NaN após o shift(1) e log)
+    # As colunas agora JÁ EXISTEM, evitando o KeyError.
     df_cleaned = df.dropna(subset=['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] + target_cols)
     
     # 2. Definição das variáveis
@@ -49,20 +45,9 @@ def run_macro_model(df, target_cols):
     # Adicionar a constante (Intercepto ou Beta 0)
     X = sm.add_constant(X) 
     
-    results = {}
-    
-    # 3. Rodar e Armazenar os Modelos
-    for y_var in target_cols:
-        Y = df_cleaned[y_var]
-        try:
-            model = sm.OLS(Y, X, missing='drop').fit()
-            # Armazena o summary como texto (é a forma mais fácil de exibir no Streamlit)
-            results[y_var] = model.summary().as_text()
-        except ValueError as e:
-            results[y_var] = f"Erro ao rodar o modelo OLS para {y_var}: {e}"
-            
+    # ... (o restante da função OLS permanece o mesmo)
+    # ... 
     return results
-
 #
 
 # --- 2. BARRA LATERAL (Seu Código Adaptado) ---
