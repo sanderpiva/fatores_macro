@@ -30,47 +30,59 @@ def fetch_and_clean_data():
 # Carrega os DataFrames (apenas uma vez, graças ao cache)
 df_parcial, df_final = fetch_and_clean_data()
 
-#
+
 def run_macro_model(df, target_cols):
     """
-    Roda a Regressão OLS. O DataFrame DEVE vir com todas as colunas de retorno 
-    logarítmico (incluindo Câmbio e CDS) já criadas (assumindo a correção 
-    feita na fetch_and_clean_data).
+    Roda a Regressão OLS com método de diagnóstico robusto para KeyError.
     """
-
-    # NOVO: Verifica se o DataFrame tem dados antes de prosseguir
+    # 0. Verificação de Dados (Guardrail para DF vazio)
     if df.empty:
         return {'Erro Geral': 'DataFrame final está vazio. Não é possível rodar o modelo.'}
+    
+    # Colunas necessárias para o modelo (X e Y)
+    required_macro_cols = ['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']
+    required_cols = required_macro_cols + target_cols
+    
+    # NOVO MÉTODO: Verificação explícita de cada coluna ausente
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        # Se houver colunas faltando, retorna o erro com a lista de colunas encontradas
+        error_message = f"""
+        Erro: O modelo OLS não pode ser executado.
+        
+        As seguintes colunas estão faltando: 
+        {", ".join(missing_cols)}
+        
+        Colunas disponíveis no DataFrame (Verifique espaços, maiúsculas e minúsculas):
+        {df.columns.tolist()}
+        """
+        # Usamos st.error (assumindo que esta parte da função rodará no bloco settings_form_submitted)
+        return {'KeyError Isolado - Dados Faltando': error_message}
 
-    # 1. Limpeza de Dados
-    # Remove linhas onde os retornos (que são calculados com .shift(1)) são NaN.
-    df_cleaned = df.dropna(subset=['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] + target_cols)
+    # Se chegamos aqui, as colunas existem e podemos prosseguir
+    
+    # 1. Limpeza de Dados: usamos required_cols, que agora sabemos que existem
+    df_cleaned = df.dropna(subset=required_cols)
     
     # 2. Definição das Variáveis Preditoras (X)
-    X = df_cleaned[['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']]
-    # Adicionar a constante (Intercepto ou Beta 0)
+    X = df_cleaned[required_macro_cols]
     X = sm.add_constant(X) 
     
-    # Inicializa o dicionário para armazenar os resultados
     results = {}
     
     # 3. Rodar e Armazenar os Modelos (Loop OLS)
     for y_var in target_cols:
         Y = df_cleaned[y_var]
         try:
-            # Executa o modelo de Regressão por Mínimos Quadrados Ordinários (OLS)
             model = sm.OLS(Y, X, missing='drop').fit()
-            
-            # Armazena o summary completo do modelo como texto
             results[y_var] = model.summary().as_text()
             
         except ValueError as e:
-            # Trata possíveis erros durante a execução do OLS
             results[y_var] = f"Erro ao rodar o modelo OLS para {y_var}: {e}"
             
-    # 4. Retorno dos Resultados
     return results
-
+#
 # --- 2. BARRA LATERAL (Seu Código Adaptado) ---
 st.sidebar.header('Configurações', divider='blue')
 
