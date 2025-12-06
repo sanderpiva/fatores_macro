@@ -1,3 +1,5 @@
+# app.py  — Versão ajustada para Streamlit (substitua o seu conteúdo atual por este)
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -7,8 +9,17 @@ import io
 import numpy as np
 import statsmodels.api as sm
 
+# ------------------------------------------------------------
+# FUNÇÃO DE LEITURA E LIMPEZA (alterada / reforçada)
+# ------------------------------------------------------------
 @st.cache_data
 def fetch_and_clean_data():
+    """
+    Lê os CSVs remotos e garante que:
+    - as colunas macro tenham nomes padronizados,
+    - os retornos logaritmos de CÂMBIO e CDS sejam criados no dataframe final,
+    - e retorna (df_parcial, df_final).
+    """
     url_parcial = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/parcial_merged_dfs_cds.csv'
     url_final = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/final_merged_dfs_with_log_returns.csv'
     
@@ -16,72 +27,127 @@ def fetch_and_clean_data():
         d_frame_parcial = pd.read_csv(url_parcial)
         d_frame_final = pd.read_csv(url_final)
         
-        # --- MOVEMOS AS TRANSFORMAÇÕES PARA DEPOIS DE LER OS DADOS ---
-        # Isso garante que as colunas só sejam criadas se a leitura do CSV for OK
-        d_frame_final['RETORNO_LOG_CAMBIO'] = np.log(d_frame_final['Taxa Cambio u.m.c./US$'] / 
-                                                     d_frame_final['Taxa Cambio u.m.c./US$'].shift(1))
+        # ----------------------------
+        #  NORMALIZAÇÃO / RENOMEAÇÃO
+        # ----------------------------
+        # Aqui padronizamos nomes que podem estar diferentes entre Colab e Streamlit.
+        # Ajuste o rhs se seus nomes reais forem diferentes no CSV do Streamlit.
+        d_frame_final = d_frame_final.rename(columns={
+            # Exemplo de mapeamento comum — altere se necessário
+            'Taxa de juros - Meta Selic definida pelo Copom - % a.a.': 'Taxa Selic - a.a.',
+            'Taxa Selic a.a.': 'Taxa Selic - a.a.',
+            'Taxa Cambio u.m.c./US$': 'Taxa Cambio u.m.c./US$',  # mantemos o nome padrão do Colab
+            'CLOSE_CAMBIO': 'Taxa Cambio u.m.c./US$',
+            'close_cambio': 'Taxa Cambio u.m.c./US$',
+            'CDS': 'CDS',
+            'CLOSE_CDS': 'CDS',
+            'close_cds': 'CDS'
+        })
         
-        d_frame_final['RETORNO_LOG_CDS'] = np.log(d_frame_final['CDS'] / 
-                                                   d_frame_final['CDS'].shift(1))
-        # -----------------------------------------------------------------
-        
+        # ---------------------------------------------------------
+        #  CRIAR OS RETORNOS LOGARÍTMICOS DE CÂMBIO E CDS (essencial)
+        # ---------------------------------------------------------
+        # Só criamos se as colunas brutas existirem; se não existirem,
+        # deixamos como NaN — isso evita KeyError ao executar no Streamlit.
+        if 'Taxa Cambio u.m.c./US$' in d_frame_final.columns:
+            d_frame_final['RETORNO_LOG_CAMBIO'] = np.log(
+                d_frame_final['Taxa Cambio u.m.c./US$'] /
+                d_frame_final['Taxa Cambio u.m.c./US$'].shift(1)
+            )
+        else:
+            # marca explicitamente a coluna ausente (ajuda no debug)
+            d_frame_final['RETORNO_LOG_CAMBIO'] = np.nan
+
+        if 'CDS' in d_frame_final.columns:
+            d_frame_final['RETORNO_LOG_CDS'] = np.log(
+                d_frame_final['CDS'] /
+                d_frame_final['CDS'].shift(1)
+            )
+        else:
+            d_frame_final['RETORNO_LOG_CDS'] = np.nan
+
+        # Garantir que a coluna 'Data' seja do tipo datetime (opcional)
+        if 'Data' in d_frame_final.columns:
+            d_frame_final['Data'] = pd.to_datetime(d_frame_final['Data'], errors='coerce')
+
         return d_frame_parcial, d_frame_final
         
     except Exception as e:
-        # Se falhar, exibe o erro e retorna DataFrames vazios
         st.error(f"Erro ao carregar os dados. Verifique a URL ou o formato: {e}")
+        # Retorna dataframes vazios para não quebrar a app
         return pd.DataFrame(), pd.DataFrame()
 
-# Carrega os DataFrames (apenas uma vez, graças ao cache)
+
+# ------------------------------------------------------------
+# CARREGA (uma vez, com cache)
+# ------------------------------------------------------------
 df_parcial, df_final = fetch_and_clean_data()
 
-#
+
+# ------------------------------------------------------------
+# FUNÇÃO DO MODELO (ajustada para verificação extra)
+# ------------------------------------------------------------
 def run_macro_model(df, target_cols):
     """
-    Roda a Regressão OLS. O DataFrame DEVE vir com todas as colunas de retorno 
-    logarítmico (incluindo Câmbio e CDS) já criadas (assumindo a correção 
-    feita na fetch_and_clean_data).
+    Roda OLS para cada coluna em target_cols usando as variáveis:
+    ['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'].
+    A função verifica a existência das colunas e dá mensagens claras via Streamlit.
     """
-
-    # NOVO: Verifica se o DataFrame tem dados antes de prosseguir
+    # Checagem inicial: dataframe vazio
     if df.empty:
         return {'Erro Geral': 'DataFrame final está vazio. Não é possível rodar o modelo.'}
-
-    # 1. Limpeza de Dados
-    # Remove linhas onde os retornos (que são calculados com .shift(1)) são NaN.
-    df_cleaned = df.dropna(subset=['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] + target_cols)
     
-    # 2. Definição das Variáveis Preditoras (X)
-    X = df_cleaned[['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']]
-    # Adicionar a constante (Intercepto ou Beta 0)
-    X = sm.add_constant(X) 
+    # Padroniza o nome da Selic dentro da função (caso não tenha sido renomeado)
+    if 'Taxa Selic - a.a.' not in df.columns and 'Taxa Selic a.a.' in df.columns:
+        df = df.rename(columns={'Taxa Selic a.a.': 'Taxa Selic - a.a.'})
     
-    # Inicializa o dicionário para armazenar os resultados
+    # Verifica presença das colunas brutas necessárias para gerar os retornos
+    required_raw = ['Taxa Selic - a.a.', 'Taxa Cambio u.m.c./US$', 'CDS']
+    missing_raw = [c for c in required_raw if c not in df.columns]
+    
+    # Se as colunas brutas existirem mas ainda não existirem os retornos, recalcula
+    if 'RETORNO_LOG_CAMBIO' not in df.columns and 'Taxa Cambio u.m.c./US$' in df.columns:
+        df['RETORNO_LOG_CAMBIO'] = np.log(df['Taxa Cambio u.m.c./US$'] / df['Taxa Cambio u.m.c./US$'].shift(1))
+    if 'RETORNO_LOG_CDS' not in df.columns and 'CDS' in df.columns:
+        df['RETORNO_LOG_CDS'] = np.log(df['CDS'] / df['CDS'].shift(1))
+    
+    # Prepare lista completa que vamos exigir no dropna
+    subset_cols = ['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] + target_cols
+    
+    # Verifica quais colunas deste subset NÃO existem e mostra mensagem amigável
+    missing_cols = [c for c in subset_cols if c not in df.columns]
+    if missing_cols:
+        # Retornamos um dicionário com o erro para que a UI exiba isto claramente
+        return {'Erro Colunas Faltantes': f"As seguintes colunas não existem no DataFrame: {missing_cols}. Verifique o pipeline de merges/renomeações."}
+    
+    # Dropna só depois de garantir que todas as colunas existem
+    df_cleaned = df.dropna(subset=subset_cols)
+    
+    # X com constantes
+    X = df_cleaned[['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']]
+    X = sm.add_constant(X)
+    
     results = {}
-    
-    # 3. Rodar e Armazenar os Modelos (Loop OLS)
     for y_var in target_cols:
+        if y_var not in df_cleaned.columns:
+            results[y_var] = f"Coluna alvo {y_var} não encontrada no DataFrame."
+            continue
         Y = df_cleaned[y_var]
         try:
-            # Executa o modelo de Regressão por Mínimos Quadrados Ordinários (OLS)
             model = sm.OLS(Y, X, missing='drop').fit()
-            
-            # Armazena o summary completo do modelo como texto
             results[y_var] = model.summary().as_text()
-            
-        except ValueError as e:
-            # Trata possíveis erros durante a execução do OLS
+        except Exception as e:
             results[y_var] = f"Erro ao rodar o modelo OLS para {y_var}: {e}"
-            
-    # 4. Retorno dos Resultados
     return results
 
-# --- 2. BARRA LATERAL (Seu Código Adaptado) ---
+
+# ------------------------------------------------------------
+#  BARRA LATERAL (mantive seu layout; só adicionei debug opcional)
+# ------------------------------------------------------------
 st.sidebar.header('Configurações', divider='blue')
 
 data_expander = st.sidebar.expander(label="# **Dados Tabulares**", icon=":material/table:")
 with data_expander:
-    # O form é crucial para agrupar as ações de filtro e só atualizar a tela quando o botão for pressionado
     with st.form("settings_form", clear_on_submit=False):
         st.markdown("**Selecione as Visualizações**")
         explain_data = st.checkbox("Significado dos Dados", key="explain")
@@ -91,15 +157,10 @@ with data_expander:
         data_described = st.checkbox("Resumir dados dataframe final (Describe)", key="describe")
         model_selic_cambio_cds = st.checkbox("Modelo Selic + Cambio + CDS", key="model_sc_cds")
         
-        # O botão de submissão é necessário para que as checagens acima sejam processadas
         settings_form_submitted = st.form_submit_button("Carregar")
 
-#
-
 graph_expander = st.sidebar.expander("# **Gráficos**", icon=":material/monitoring:")
-# st.sidebar.subheader('Gráficos')
 with graph_expander:
-    # Formulário dos gráficos
     with st.form("graphs_form", clear_on_submit=False):
         pass_per_class_graph = st.checkbox("Passageiros por Classe")
         age_hitogram = st.checkbox("Frequência de Idade")
@@ -113,16 +174,13 @@ with graph_expander:
         
         graphs_form_submitted = st.form_submit_button("Gerar")
 
-# === Página Principal ===
+# Página Principal
 st.header('Projeto Fatores Macroeconomicos', divider='blue')
 
-# Um markdown de múltiplas linhas
 data_meaning = '''
-
 - `Variável`: Significado
-
 - `Data`: Data de referencia que relaciona os dados (06 out 2020 - 01 out 2025)
-- `Taxa Selic a.a.`: Taxa Selic em porcentual ao ano
+- `Taxa Selic - a.a.`: Taxa Selic em porcentual ao ano
 - `Taxa Cambio u.m.c./US$`: Taxa de câmbio unidade monetária corrente/US$
 - `CDS`: Risco Brasil CDS
 - `Itau`: Preco da ação (fechamento) do Itaú
@@ -133,7 +191,7 @@ data_meaning = '''
 - `RETORNO_LOG_Vale Rio Doce`: Calculo retorno logaritmo para o preço da ação da Vale
 '''
 
-# Ao submeter o form de dados tabulares
+# Quando o form for submetido
 if settings_form_submitted:
     if explain_data:
         st.subheader("Dicionário dos Dados", divider="gray")
@@ -153,47 +211,46 @@ if settings_form_submitted:
     
     if data_info:
         st.subheader("Informação dos dados: dataframe Final", divider="gray")
-        #Garantindo a conversao da data em datatime
         try:
-            df_final['Data'] = pd.to_datetime(df_final['Data'], errors='coerce')
+            if 'Data' in df_final.columns:
+                df_final['Data'] = pd.to_datetime(df_final['Data'], errors='coerce')
+            else:
+                st.warning("Aviso: A coluna 'Data' não foi encontrada no DataFrame. Verifique o nome da coluna.")
         except KeyError:
-            st.warning("Aviso: A coluna 'Data' não foi encontrada no DataFrame. Verifique o nome da coluna.")
+            st.warning("Aviso: Erro ao converter Data para datetime.")
 
-        # Cria um objeto para capturar a saída de texto
         buffer_captura = io.StringIO()
-        
-        # Redireciona a saída impressa de .info() para o nosso buffer
         df_final.info(buf=buffer_captura)
-        
-        # Exibe o conteúdo capturado na webapp Streamlit
         st.code(buffer_captura.getvalue(), language='text')
-    
+
     if model_selic_cambio_cds:
         st.subheader("Modelo Selic + Cambio + CDSx", divider="gray")
         
-        # Variáveis dependentes para as 3 ações
+        # Ações alvo
         acoes_retorno = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale do Rio Doce']
         
-        # Executa o modelo
+        # Executa modelo
         model_results = run_macro_model(df_final.copy(), acoes_retorno)
         
-        # Exibe os resultados
-        for acao, summary_text in model_results.items():
-            st.markdown(f"### Resultados da Regressão para: **{acao}**")
-            # st.code é ideal para exibir o summary formatado
-            st.code(summary_text, language='text')
+        # Se houver erro de colunas faltantes, exibimos de forma clara
+        if isinstance(model_results, dict) and 'Erro Colunas Faltantes' in model_results:
+            st.error(model_results['Erro Colunas Faltantes'])
+        elif isinstance(model_results, dict) and 'Erro Geral' in model_results:
+            st.error(model_results['Erro Geral'])
+        else:
+            # Exibe os resultados
+            for acao, summary_text in model_results.items():
+                st.markdown(f"### Resultados da Regressão para: **{acao}**")
+                st.code(summary_text, language='text')
 
-            # Você pode adicionar um st.write para interpretar o R-Quadrado [cite: 46]
-            import re
-            r_sq_match = re.search(r'R-squared:\s+(\d\.\d+)', summary_text)
-            
-            if r_sq_match:
-                r_squared = float(r_sq_match.group(1))
-                st.info(f"O **$R^2$ (Coeficiente de Determinação)** para **{acao}** é de **{r_squared:.4f}**.")
-                st.caption("Este valor indica a porcentagem da variação no Retorno da Ação que é explicada pelas variáveis macroeconômicas (Selic, Câmbio e CDS)[cite: 46].")
-
-#
-
+                # Extrair R-squared (melhora: regex mais robusto)
+                import re
+                r_sq_match = re.search(r'R-squared:\s+([0-9]*\.[0-9]+)', summary_text)
+                if r_sq_match:
+                    r_squared = float(r_sq_match.group(1))
+                    st.info(f"O **$R^2$** para **{acao}** é de **{r_squared:.4f}**.")
+                    st.caption("Este valor indica a porcentagem da variação no Retorno da Ação que é explicada pelas variáveis macroeconômicas (Selic, Câmbio e CDS).")
+##
 
 # Ao submeter o form de gráficos
 if graphs_form_submitted:
