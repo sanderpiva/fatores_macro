@@ -8,20 +8,24 @@ import numpy as np
 import statsmodels.api as sm
 
 @st.cache_data
+@st.cache_data
 def fetch_and_clean_data():
-    # ATUALIZE ESTE LINK para apontar para o seu novo CSV COMPLETO
     url_parcial = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/parcial_merged_dfs_cds.csv'
-    url_final_pronto = 'https://github.com/sanderpiva/fatores_macro_docs/blob/main/resultados_modelo_json/df_final_model.csv' # 
+    # ATUALIZE ESTA URL para o link do novo CSV que você subiu, que já está completo
+    url_final = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/final_merged_dfs_with_log_returns_arredondado.csv' 
     
     try:
         d_frame_parcial = pd.read_csv(url_parcial)
-        # LER O ARQUIVO QUE JÁ CONTÉM AS COLUNAS PRONTAS
-        d_frame_final = pd.read_csv(url_final_pronto)
+        d_frame_final = pd.read_csv(url_final)
+        
+        # --- REMOVIDA TODA A LÓGICA DE CÁLCULO E ARREDONDAMENTO ---
+        # O Streamlit apenas carrega os dados já prontos do CSV
         
         return d_frame_parcial, d_frame_final
         
     except Exception as e:
-        st.error(f"Erro ao carregar os dados. Verifique a nova URL ou o formato: {e}")
+        # Este bloco agora captura apenas falhas de carregamento de URL/Rede
+        st.error(f"Erro ao carregar os dados. Verifique a URL ou o formato: {e}")
         return pd.DataFrame(), pd.DataFrame()
 # Carrega os DataFrames (apenas uma vez, graças ao cache)
 df_parcial, df_final = fetch_and_clean_data()
