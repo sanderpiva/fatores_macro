@@ -40,7 +40,7 @@ def run_macro_model(df, target_cols):
         return {'Erro Geral': 'DataFrame final está vazio. Não é possível rodar o modelo.'}
     
     # Colunas necessárias para o modelo (X e Y)
-    required_macro_cols = ['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']
+    required_macro_cols = ['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']
     required_cols = required_macro_cols + target_cols
     
     # NOVO MÉTODO: Verificação explícita de cada coluna ausente
