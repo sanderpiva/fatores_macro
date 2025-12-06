@@ -12,7 +12,7 @@ import statsmodels.api as sm
 def fetch_and_clean_data():
     url_parcial = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/parcial_merged_dfs_cds.csv'
     # ATUALIZE ESTA URL para o link do novo CSV que você subiu, que já está completo
-    url_final = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/final_merged_dfs_with_log_returns_arredondado.csv' 
+    url_final = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/df_final_model.csv' 
     
     try:
         d_frame_parcial = pd.read_csv(url_parcial)
