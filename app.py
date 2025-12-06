@@ -4,6 +4,8 @@ import seaborn as sns
 import streamlit as st
 import plotly.figure_factory as ff
 import io
+import numpy as np
+import statsmodels.api as sm
 
 @st.cache_data
 def fetch_and_clean_data():
@@ -22,6 +24,47 @@ def fetch_and_clean_data():
 # Carrega os DataFrames (apenas uma vez, graças ao cache)
 df_parcial, df_final = fetch_and_clean_data()
 
+def run_macro_model(df, target_cols):
+    """
+    Roda a Regressão OLS para múltiplas variáveis dependentes (ações) 
+    usando Selic, Retorno Log do Câmbio e Retorno Log do CDS como preditoras.
+    """
+    # 1. Ajuste e Dropna para garantir que as colunas RETORNO_LOG_CAMBIO e RETORNO_LOG_CDS existam
+    # Rodar isso apenas uma vez no DataFrame antes de passar para o modelo
+    
+    # Criando as variáveis de Retorno Log para Câmbio e CDS, se não existirem
+    if 'RETORNO_LOG_CAMBIO' not in df.columns:
+        df['RETORNO_LOG_CAMBIO'] = np.log(df['Taxa Cambio u.m.c./US$'] / 
+                                        df['Taxa Cambio u.m.c./US$'].shift(1))
+        
+    if 'RETORNO_LOG_CDS' not in df.columns:
+        df['RETORNO_LOG_CDS'] = np.log(df['CDS'] / 
+                                    df['CDS'].shift(1))
+        
+    # Remove a primeira linha (que terá NaN após o shift(1) e log)
+    df_cleaned = df.dropna(subset=['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] + target_cols)
+    
+    # 2. Definição das variáveis
+    X = df_cleaned[['Taxa Selic a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']]
+    # Adicionar a constante (Intercepto ou Beta 0)
+    X = sm.add_constant(X) 
+    
+    results = {}
+    
+    # 3. Rodar e Armazenar os Modelos
+    for y_var in target_cols:
+        Y = df_cleaned[y_var]
+        try:
+            model = sm.OLS(Y, X, missing='drop').fit()
+            # Armazena o summary como texto (é a forma mais fácil de exibir no Streamlit)
+            results[y_var] = model.summary().as_text()
+        except ValueError as e:
+            results[y_var] = f"Erro ao rodar o modelo OLS para {y_var}: {e}"
+            
+    return results
+
+#
+
 # --- 2. BARRA LATERAL (Seu Código Adaptado) ---
 st.sidebar.header('Configurações', divider='blue')
 
@@ -35,6 +78,7 @@ with data_expander:
         data_in_table_final = st.checkbox("Exibir Tabela de Dados Final", key="table_final")
         data_info = st.checkbox("Informações dataframe final", key="info")
         data_described = st.checkbox("Resumir dados dataframe final (Describe)", key="describe")
+        model_selic_cambio_cds = st.checkbox("Modelo Selic + Cambio + CDS", key="model_sc_cds")
         
         # O botão de submissão é necessário para que as checagens acima sejam processadas
         settings_form_submitted = st.form_submit_button("Carregar")
@@ -112,6 +156,33 @@ if settings_form_submitted:
         
         # Exibe o conteúdo capturado na webapp Streamlit
         st.code(buffer_captura.getvalue(), language='text')
+    
+    if model_selic_cambio_cds:
+        st.subheader("Modelo Selic + Cambio + CDSx", divider="gray")
+        
+        # Variáveis dependentes para as 3 ações
+        acoes_retorno = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale do Rio Doce']
+        
+        # Executa o modelo
+        model_results = run_macro_model(df_final.copy(), acoes_retorno)
+        
+        # Exibe os resultados
+        for acao, summary_text in model_results.items():
+            st.markdown(f"### Resultados da Regressão para: **{acao}**")
+            # st.code é ideal para exibir o summary formatado
+            st.code(summary_text, language='text')
+
+            # Você pode adicionar um st.write para interpretar o R-Quadrado [cite: 46]
+            import re
+            r_sq_match = re.search(r'R-squared:\s+(\d\.\d+)', summary_text)
+            
+            if r_sq_match:
+                r_squared = float(r_sq_match.group(1))
+                st.info(f"O **$R^2$ (Coeficiente de Determinação)** para **{acao}** é de **{r_squared:.4f}**.")
+                st.caption("Este valor indica a porcentagem da variação no Retorno da Ação que é explicada pelas variáveis macroeconômicas (Selic, Câmbio e CDS)[cite: 46].")
+
+#
+
 
 # Ao submeter o form de gráficos
 if graphs_form_submitted:
