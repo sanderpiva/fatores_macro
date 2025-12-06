@@ -179,7 +179,7 @@ if settings_form_submitted:
         st.subheader("Modelo Selic + Cambio + CDSx", divider="gray")
         
         # Variáveis dependentes para as 3 ações
-        acoes_retorno = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale do Rio Doce']
+        acoes_retorno = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']
         
         # Executa o modelo
         model_results = run_macro_model(df_final.copy(), acoes_retorno)
