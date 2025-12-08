@@ -79,7 +79,7 @@ with data_expander:
         st.markdown("**Selecione as Visualizações**")
         explain_data = st.checkbox("Significado dos Dados", key="explain")
         data_in_table_parcial = st.checkbox("Exibir Tabela de Dados Parcial", key="table_parcial")
-        data_in_table_final = st.checkbox("Exibir Tabela de Dados Final", key="table_final")
+        data_in_table_final = st.checkbox("Exibir Tabela de Dados final", key="table_final")
         data_info = st.checkbox("Informações dataframe final", key="info")
         data_described = st.checkbox("Resumir dados dataframe final (Describe)", key="describe")
         model_selic_cambio_cds = st.checkbox("Modelo Selic + Cambio + CDS", key="model_sc_cds")
@@ -95,7 +95,7 @@ graph_expander = st.sidebar.expander("# **Gráficos**", icon=":material/monitori
 with graph_expander:
     # Formulário dos gráficos
     with st.form("graphs_form", clear_on_submit=False):
-        pass_per_class_graph = st.checkbox("Passageiros por Classe")
+        #pass_per_class_graph = st.checkbox("Passageiros por Classe")
         #age_hitogram = st.checkbox("Frequência de Idade")
         #survived = st.checkbox("% de Sobreviventes")
         #class_survived = st.checkbox("Sobreviventes por Classe")
@@ -103,7 +103,7 @@ with graph_expander:
         #corr_class_survived = st.checkbox("Correlação Sobreviventes vs Classe")
         #corr_1class3_survived = st.checkbox("Correlação Sobreviventes vs Classe (1 e 3)")
         #sex_survived = st.checkbox("Sobreviventes por Sexo")
-        corr_sex_survived = st.checkbox("Correlação Sobreviventes vs Sexo")
+        corr_variables = st.checkbox("Correlação Variáveis Independentes vs Variáveis Dependentes")
         
         graphs_form_submitted = st.form_submit_button("Gerar")
 
@@ -346,7 +346,7 @@ if graphs_form_submitted:
         st.bar_chart(chart_data, x="Sexo", y="Pessoas", color="Situação")
 
 if graphs_form_submitted:
-    if corr_sex_survived:
+    if corr_variables:
         st.subheader("Correlação Variaveis Independentes vs Variaveis Dependentes", divider="gray")
 
         # Geral
