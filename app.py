@@ -152,7 +152,7 @@ if settings_form_submitted:
         st.write(df_final)
     
     if data_info:
-        st.subheader("Informação dos dados: dataframe Final (Modelo)", divider="gray")
+        st.subheader("Informações sobre os dados: dataframe final (Modelo)", divider="gray")
         try:
             df_final['Data'] = pd.to_datetime(df_final['Data'], errors='coerce')
         except KeyError:
@@ -217,24 +217,19 @@ if graphs_form_submitted:
     if corr_variables:
         st.subheader("Correlação Variaveis Independentes vs Variaveis Dependentes", divider="gray")
 
-        # Geral
-        #df_ordered = df.sort_values('class', ascending=True)
-        #frame = df_ordered
-        #frame.replace('male', 0, inplace=True)
-        #frame.replace('female', 1, inplace=True)
-
-        # Correlação Sexo vs Sobrevivente
-        #correlation = frame[['survived', 'sex']].corr()
-        
-        # Gráfico
-        #plt.figure(figsize=(8, 6))
-        #heatmap = sns.heatmap(correlation, vmin=-1, vmax=1, annot=True)
-        #st.pyplot(plt)
-
         correlation_matrix = df_final[['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS', 'RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']].corr()
         
-        # Criar o mapa de calor
-        plt.figure(figsize=(12, 10))
-        sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
-        plt.title('Mapa de Calor da Correlação das Variáveis Independentes x Variáveis Dependentes', fontsize=16)
-        plt.show()
+        fig, ax = plt.subplots(figsize=(12, 10))
+
+        sns.heatmap(
+            correlation_matrix, 
+            annot=True, 
+            cmap='coolwarm', 
+            fmt=".2f", 
+            linewidths=.5, 
+            ax=ax 
+        )
+        
+        ax.set_title('Mapa de Calor da Correlação das Variáveis Independentes x Variáveis Dependentes', fontsize=16)
+        
+        st.pyplot(fig)
