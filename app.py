@@ -214,6 +214,8 @@ if graphs_form_submitted:
         # Seu DataFrame no Streamlit é 'df_final' e não 'df'
         df_usado = df_final.copy() # Cria uma cópia para evitar side effects (boa prática)
 
+        df_usado['Data'] = pd.to_datetime(df_usado['Data'], errors='coerce')
+
         acoes_retornos = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']
 
         # Usamos sharex=False para que cada subplot exiba seu próprio eixo X (datas)
