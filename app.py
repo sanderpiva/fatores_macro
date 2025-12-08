@@ -95,14 +95,8 @@ graph_expander = st.sidebar.expander("# **Gráficos**", icon=":material/monitori
 with graph_expander:
     # Formulário dos gráficos
     with st.form("graphs_form", clear_on_submit=False):
-        #pass_per_class_graph = st.checkbox("Passageiros por Classe")
-        #age_hitogram = st.checkbox("Frequência de Idade")
-        #survived = st.checkbox("% de Sobreviventes")
-        #class_survived = st.checkbox("Sobreviventes por Classe")
-        #class_p_survived = st.checkbox("% de Sobreviventes por Classe")
-        #corr_class_survived = st.checkbox("Correlação Sobreviventes vs Classe")
-        #corr_1class3_survived = st.checkbox("Correlação Sobreviventes vs Classe (1 e 3)")
-        #sex_survived = st.checkbox("Sobreviventes por Sexo")
+        
+        grap_log_return = st.checkbox("Gráficos de Série Temporal do Retorno logaritmo dos Preços das Ações")
         corr_variables = st.checkbox("Correlação Variáveis Independentes vs Variáveis Dependentes")
         
         graphs_form_submitted = st.form_submit_button("Gerar")
@@ -214,8 +208,13 @@ if settings_form_submitted:
 # Ao submeter o form de gráficos
 
 if graphs_form_submitted:
+    if grap_log_return:
+        st.subheader("Gráficos de Série Temporal do Retorno logaritmo dos Preços das Ações")
+
+
+if graphs_form_submitted:
     if corr_variables:
-        st.subheader("Correlação Variaveis Independentes vs Variaveis Dependentes", divider="gray")
+        st.subheader("Correlação Variáveis Independentes vs Variáveis Dependentes", divider="gray")
 
         correlation_matrix = df_final[['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS', 'RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']].corr()
         
