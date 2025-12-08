@@ -9,10 +9,8 @@ import numpy as np
 import statsmodels.api as sm
 
 @st.cache_data
-@st.cache_data
 def fetch_and_clean_data():
     url_parcial = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/parcial_merged_dfs_cds.csv'
-    # ATUALIZE ESTA URL para o link do novo CSV que você subiu, que já está completo
     url_final = 'https://raw.githubusercontent.com/sanderpiva/fatores_macro_docs/main/resultados_modelo_json/df_final_model.csv' 
     
     try:
@@ -98,13 +96,13 @@ with graph_expander:
     # Formulário dos gráficos
     with st.form("graphs_form", clear_on_submit=False):
         pass_per_class_graph = st.checkbox("Passageiros por Classe")
-        age_hitogram = st.checkbox("Frequência de Idade")
-        survived = st.checkbox("% de Sobreviventes")
-        class_survived = st.checkbox("Sobreviventes por Classe")
-        class_p_survived = st.checkbox("% de Sobreviventes por Classe")
-        corr_class_survived = st.checkbox("Correlação Sobreviventes vs Classe")
-        corr_1class3_survived = st.checkbox("Correlação Sobreviventes vs Classe (1 e 3)")
-        sex_survived = st.checkbox("Sobreviventes por Sexo")
+        #age_hitogram = st.checkbox("Frequência de Idade")
+        #survived = st.checkbox("% de Sobreviventes")
+        #class_survived = st.checkbox("Sobreviventes por Classe")
+        #class_p_survived = st.checkbox("% de Sobreviventes por Classe")
+        #corr_class_survived = st.checkbox("Correlação Sobreviventes vs Classe")
+        #corr_1class3_survived = st.checkbox("Correlação Sobreviventes vs Classe (1 e 3)")
+        #sex_survived = st.checkbox("Sobreviventes por Sexo")
         corr_sex_survived = st.checkbox("Correlação Sobreviventes vs Sexo")
         
         graphs_form_submitted = st.form_submit_button("Gerar")
@@ -136,7 +134,7 @@ acoes_retorno = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale 
 
 # Variáveis preditoras (X)
 X_macro_sc_cds = ['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo 1
-X_macro_c_cds = ['RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo 2
+X_macro_c_cds = ['RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo Final
 
 
 # Ao submeter o form de dados tabulares
@@ -179,7 +177,6 @@ if settings_form_submitted:
             st.markdown(f"### Resultados da Regressão para: **{acao}**")
             st.code(summary_text, language='text')
 
-            
             r_sq_match = re.search(r'R-squared:\s+(\d\.\d+)', summary_text)
             
             if r_sq_match:
