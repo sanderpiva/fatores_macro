@@ -267,5 +267,6 @@ if graphs_form_submitted:
         st.info(f"**IMPORTANTE:**")
         st.write("Variáveis independentes: Taxa Selic - a.a., Retorno Logaritmo Cambio e Retorno Logaritmo CDS")
         st.write("Variáveis dependentes: Retorno Logaritmo Itau, Retorno Logaritmo Petrobras, Retorno Logaritmo Vale Rio Doce (Retorno Logaritmo das ações das empresas)")
-        st.info(f"**IMPORTANTE:**")
+        st.info(f"**COMPORTAMENTO?**")
         st.write("A medida que aumento o valor do cambio e/ou do risco CDS, o retorno logaritmo do preço das ações das empresas Itau, Petrobrás e Vale do Rio Doce tendem a diminuir.")
+        st.write("Variável independente Taxa Selic - a.a. foi desconsiderada no modelo preditivo adotado")
