@@ -148,15 +148,11 @@ if settings_form_submitted:
         st.write(df_parcial)
     
     if data_in_table_final:
-        st.subheader("Tabela de Dados Final", divider="gray")
+        st.subheader("Tabela de Dados Final (Modelo)", divider="gray")
         st.write(df_final)
     
-    if data_described:
-        st.subheader("Resumo dos dados: dataframe final", divider="gray")
-        st.write(df_final.describe())
-    
     if data_info:
-        st.subheader("Informação dos dados: dataframe Final", divider="gray")
+        st.subheader("Informação dos dados: dataframe Final (Modelo)", divider="gray")
         try:
             df_final['Data'] = pd.to_datetime(df_final['Data'], errors='coerce')
         except KeyError:
@@ -167,6 +163,10 @@ if settings_form_submitted:
         df_final.info(buf=buffer_captura)
         
         st.code(buffer_captura.getvalue(), language='text')
+    
+    if data_described:
+        st.subheader("Resumo dos dados: dataframe final (Modelo)", divider="gray")
+        st.write(df_final.describe())
     
     if model_selic_cambio_cds:
         st.subheader("Modelo Selic + Câmbio + CDS", divider="gray") 
@@ -347,18 +347,26 @@ if graphs_form_submitted:
 
 if graphs_form_submitted:
     if corr_sex_survived:
-        st.subheader("Correlação Sexo vs Status Sobrevivência", divider="gray")
+        st.subheader("Correlação Variaveis Independentes vs Variaveis Dependentes", divider="gray")
 
         # Geral
-        df_ordered = df.sort_values('class', ascending=True)
-        frame = df_ordered
-        frame.replace('male', 0, inplace=True)
-        frame.replace('female', 1, inplace=True)
+        #df_ordered = df.sort_values('class', ascending=True)
+        #frame = df_ordered
+        #frame.replace('male', 0, inplace=True)
+        #frame.replace('female', 1, inplace=True)
 
         # Correlação Sexo vs Sobrevivente
-        correlation = frame[['survived', 'sex']].corr()
+        #correlation = frame[['survived', 'sex']].corr()
         
         # Gráfico
-        plt.figure(figsize=(8, 6))
-        heatmap = sns.heatmap(correlation, vmin=-1, vmax=1, annot=True)
-        st.pyplot(plt)
+        #plt.figure(figsize=(8, 6))
+        #heatmap = sns.heatmap(correlation, vmin=-1, vmax=1, annot=True)
+        #st.pyplot(plt)
+
+        correlation_matrix = df_final[['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS', 'RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']].corr()
+        
+        # Criar o mapa de calor
+        plt.figure(figsize=(12, 10))
+        sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
+        plt.title('Mapa de Calor da Correlação das Variáveis Independentes x Variáveis Dependentes', fontsize=16)
+        plt.show()
