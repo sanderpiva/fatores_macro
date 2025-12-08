@@ -209,8 +209,34 @@ if settings_form_submitted:
 
 if graphs_form_submitted:
     if grap_log_return:
-        st.subheader("Gráficos de Série Temporal do Retorno logaritmo dos Preços das Ações")
+        st.subheader("Gráficos de Série Temporal do Retorno logaritmo dos Preços das Ações", divider="gray")
 
+        # Usando a lista de colunas de Retorno Logarítmico
+        acoes_retornos = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']
+
+        # Ajuste: Criar a figura explícita para o Streamlit
+        fig, axes = plt.subplots(3, 1, figsize=(15, 18), sharex=True) # sharex=True é mais limpo para séries temporais
+
+        for i, acao in enumerate(acoes_retornos):
+            # Usando 'Data' como eixo X (Assumindo que 'Data' está no df_final)
+            sns.lineplot(ax=axes[i], x='Data', y=acao, data=df_final, color=plt.cm.viridis(i/len(acoes_retornos)))
+            
+            # CORREÇÃO: Título reflete o que está sendo plotado (Retorno)
+            axes[i].set_title(f'Série Temporal do Retorno Logarítmico: {acao}', fontsize=16)
+            
+            # CORREÇÃO: Rótulo Y reflete o que está sendo plotado (Retorno)
+            axes[i].set_ylabel('Retorno Logarítmico', fontsize=12)
+            axes[i].tick_params(axis='y', labelsize=10)
+            axes[i].grid(True, linestyle='--', alpha=0.7)
+
+        # Rótulos X (somente no gráfico inferior)
+        axes[-1].set_xlabel('Data', fontsize=12)
+        axes[-1].tick_params(axis='x', rotation=45, labelsize=10)
+
+        plt.tight_layout()
+        
+        # CORREÇÃO OBRIGATÓRIA: Usar st.pyplot para renderizar no Streamlit
+        st.pyplot(fig)
 
 if graphs_form_submitted:
     if corr_variables:
