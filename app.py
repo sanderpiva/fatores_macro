@@ -110,7 +110,7 @@ data_meaning = '''
 
 - `Variável`: Significado
 
-- `Data`: Data de referencia que relaciona os dados (06 out 2020 - 01 out 2025)
+- `Data`: Data de referencia que relaciona os dados (07 out 2020 - 01 out 2025)
 - `Taxa Selic a.a.`: Taxa Selic em porcentual ao ano
 - `Taxa Cambio u.m.c./US$`: Taxa de câmbio unidade monetária corrente/US$
 - `CDS`: Risco Brasil CDS
