@@ -222,7 +222,7 @@ if graphs_form_submitted:
 
         for i, acao in enumerate(acoes_retornos):
         
-            sns.lineplot(ax=axes[i], x='Data', y=acao, data=df_usado, color=plt.cm.viridis(i/len(acoes_retornos)))
+            sns.lineplot(ax=axes[i], x='Data', y=acao, data=df_usado, color=plt.cm.cividis(i/len(acoes_retornos)))
             
             axes[i].set_title(f'Série Temporal do Retorno Logarítmico: {acao}', fontsize=16)
             axes[i].set_ylabel('Retorno Logarítmico', fontsize=12)
