@@ -82,7 +82,7 @@ with data_expander:
         data_in_table_final = st.checkbox("Exibir Tabela de Dados final", key="table_final")
         data_info = st.checkbox("Informações dataframe final", key="info")
         data_described = st.checkbox("Resumir dados dataframe final (Describe)", key="describe")
-        model_selic_cambio_cds = st.checkbox("Modelo Selic + Cambio + CDS", key="model_sc_cds")
+        model_selic_cambio_cds = st.checkbox("Modelo Selic + Câmbio + CDS", key="model_sc_cds")
         model_cambio_cds = st.checkbox("Modelo Câmbio + CDS", key="model_c_cds")
         
         # O botão de submissão é necessário para que as checagens acima sejam processadas
@@ -197,7 +197,7 @@ if settings_form_submitted:
                 st.caption("Este valor indica a porcentagem da variação no Retorno da Ação que é explicada pelas variáveis macroeconômicas (Câmbio e CDS).")
         
         
-        st.info(f"**VANTAGENS do Modelo (Cambio + CDS) adotado:**")
+        st.info(f"**VANTAGENS do Modelo (Câmbio + CDS) adotado:**")
         st.write("- Oferece o melhor equilíbrio entre simplicidade e capacidade de explicar a variação nos retornos das ações;")
         st.write("- Ambas as variáveis, (RETORNO_LOG_CAMBIO e RETORNO_LOG_CDS são estatisticamente significativas (p < 0.05) para os três ativos;")
         st.write("- Multicolinearidade aceitável: A multicolinearidade (Cond. No.  ≈121 ) entre Câmbio e CDS indica que eles se movem juntos, dificultando a interpretação isolada do efeito de cada um, porém não a capacidade preditiva do modelo como um todo;")
@@ -271,7 +271,7 @@ if graphs_form_submitted:
     if corr_variables:
         st.subheader("Correlação Variáveis Independentes vs Variáveis Dependentes", divider="gray")
         st.info(f"**IMPORTANTE:**")
-        st.write("Para o modelo preditivo adotado:")
+        st.write("Para o modelo preditivo adotado (Câmbio + CDS):")
         st.write("Variáveis independentes: Retorno Logaritmo Cambio e Retorno Logaritmo CDS")
         st.write("Variáveis dependentes: Retorno Logaritmo Itau, Retorno Logaritmo Petrobras, Retorno Logaritmo Vale Rio Doce (Retorno Logaritmo das ações das empresas)")
         st.info(f"**CORRELAÇÃO:**")
