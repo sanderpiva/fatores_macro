@@ -210,7 +210,7 @@ if graphs_form_submitted:
     
     
     if grap_log_return_cambio_cds:
-        st.subheader("Gráficos de Série Temporal do Retorno logaritmo Taxa Cambio e Risco Brasil - CDS")
+        st.subheader("Gráficos de Série Temporal do Retorno logaritmo Taxa Cambio e Risco Brasil - CDS", divider="gray")
 
         df_usado = df_final.copy() 
 
@@ -273,7 +273,7 @@ if graphs_form_submitted:
         st.info(f"**IMPORTANTE:**")
         st.write("Variáveis independentes: Taxa Selic - a.a., Retorno Logaritmo Cambio e Retorno Logaritmo CDS")
         st.write("Variáveis dependentes: Retorno Logaritmo Itau, Retorno Logaritmo Petrobras, Retorno Logaritmo Vale Rio Doce (Retorno Logaritmo das ações das empresas)")
-        st.info(f"")
+        st.info(f"**Correlação:**")
 
         correlation_matrix = df_final[['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS', 'RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']].corr()
         
