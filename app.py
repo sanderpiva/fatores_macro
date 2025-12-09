@@ -96,7 +96,8 @@ with graph_expander:
     # Formulário dos gráficos
     with st.form("graphs_form", clear_on_submit=False):
         
-        grap_log_return = st.checkbox("Gráficos de Série Temporal do Retorno logaritmo dos Preços das Ações")
+        grap_log_return_cambio_cds = st.checkbox("Gráficos de Série Temporal do Retorno logaritmo da Taxa de Cambio e Risco Brasil - CDS")
+        grap_log_return_stock_prices = st.checkbox("Gráficos de Série Temporal do Retorno logaritmo dos Preços das Ações")
         corr_variables = st.checkbox("Correlação Variáveis Independentes vs Variáveis Dependentes")
         
         graphs_form_submitted = st.form_submit_button("Gerar")
@@ -120,7 +121,6 @@ data_meaning = '''
 - `Vale do Rio Doce`: Preco da ação (fechamento) da Vale Rio Doce
 - `RETORNO_LOG_Vale Rio Doce`: Calculo retorno logaritmo para o preço da ação da Vale
 '''
-# Coloque estas definições ANTES do bloco 'if settings_form_submitted:'
 
 # Variáveis dependentes (Y) para as 3 ações
 
@@ -129,7 +129,6 @@ acoes_retorno = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale 
 # Variáveis preditoras (X)
 X_macro_sc_cds = ['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo 1
 X_macro_c_cds = ['RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo Final
-
 
 # Ao submeter o form de dados tabulares
 if settings_form_submitted:
@@ -208,40 +207,43 @@ if settings_form_submitted:
 # Ao submeter o form de gráficos
 
 if graphs_form_submitted:
-    if grap_log_return:
+    
+    
+    if grap_log_return_cambio_cds:
+        st.subheader("Gráficos de Série Temporal do Retorno logaritmo Taxa Cambio e Risco Brasil - CDS")
+    
+    
+    
+    
+    
+    
+    if grap_log_return_stock_prices:
         st.subheader("Gráficos de Série Temporal do Retorno logaritmo dos Preços das Ações", divider="gray")
 
-        # Seu DataFrame no Streamlit é 'df_final' e não 'df'
         df_usado = df_final.copy() # Cria uma cópia para evitar side effects (boa prática)
 
         df_usado['Data'] = pd.to_datetime(df_usado['Data'], errors='coerce')
 
         acoes_retornos = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']
 
-        # Usamos sharex=False para que cada subplot exiba seu próprio eixo X (datas)
         fig, axes = plt.subplots(3, 1, figsize=(15, 18), sharex=False) 
 
         for i, acao in enumerate(acoes_retornos):
-            # sns.lineplot(ax=axes[i], x='Data', y=acao, data=df, color=...)
-            # ATENÇÃO: Use df_usado para o DataFrame
+        
             sns.lineplot(ax=axes[i], x='Data', y=acao, data=df_usado, color=plt.cm.viridis(i/len(acoes_retornos)))
             
-            # CORREÇÃO: Títulos e Rótulos ajustados para Retornos Logarítmicos
             axes[i].set_title(f'Série Temporal do Retorno Logarítmico: {acao}', fontsize=16)
             axes[i].set_ylabel('Retorno Logarítmico', fontsize=12)
             axes[i].tick_params(axis='y', labelsize=10)
             axes[i].grid(True, linestyle='--', alpha=0.7)
             
-            # Mover a rotação do eixo X para dentro do loop (aplicada a todos os eixos)
             axes[i].tick_params(axis='x', rotation=45, labelsize=10)
             
-            # Define o rótulo X como 'Data' para todos, mas só aparece se sharex=False
             axes[i].set_xlabel('Data', fontsize=12) 
 
 
         plt.tight_layout()
 
-        # CORREÇÃO OBRIGATÓRIA: Usar st.pyplot para renderizar no Streamlit
         st.pyplot(fig)
 
 if graphs_form_submitted:
