@@ -177,6 +177,7 @@ if settings_form_submitted:
                 st.info(f"O **$R^2$ (Coeficiente de Determinação)** para **{acao}** é de **{r_squared:.4f}**.")
                 st.caption("Este valor indica a porcentagem da variação no Retorno da Ação que é explicada pelas variáveis macroeconômicas (Selic, Câmbio e CDS).")
         
+        st.info(f"**IMPORTANTE:**")
         st.write("Esse modelo foi descartado, pois a regra p < 0.05 não é atendida em todos os casos. Exemplo: Para a Vale do Rio Doce, a Taxa Selic a.a. teve p > 0.05")
 
     if model_cambio_cds:
