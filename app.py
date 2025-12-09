@@ -271,11 +271,12 @@ if graphs_form_submitted:
     if corr_variables:
         st.subheader("Correlação Variáveis Independentes vs Variáveis Dependentes", divider="gray")
         st.info(f"**IMPORTANTE:**")
-        st.write("Variáveis independentes: Taxa Selic - a.a., Retorno Logaritmo Cambio e Retorno Logaritmo CDS")
+        st.write("Para o modelo preditivo adotado:")
+        st.write("Variáveis independentes: Retorno Logaritmo Cambio e Retorno Logaritmo CDS")
         st.write("Variáveis dependentes: Retorno Logaritmo Itau, Retorno Logaritmo Petrobras, Retorno Logaritmo Vale Rio Doce (Retorno Logaritmo das ações das empresas)")
         st.info(f"**CORRELAÇÃO:**")
 
-        correlation_matrix = df_final[['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS', 'RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']].corr()
+        correlation_matrix = df_final[['RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS', 'RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce']].corr()
         
         fig, ax = plt.subplots(figsize=(12, 10))
 
@@ -293,4 +294,4 @@ if graphs_form_submitted:
         st.pyplot(fig)
         st.info(f"**COMPORTAMENTO?**")
         st.write("A medida que aumento o valor do cambio e/ou do risco CDS, o retorno logaritmo do preço das ações das empresas Itau, Petrobrás e Vale do Rio Doce tendem a diminuir.")
-        st.write("Variável independente Taxa Selic - a.a. foi desconsiderada no modelo preditivo adotado")
+        
