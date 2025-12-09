@@ -211,16 +211,37 @@ if graphs_form_submitted:
     
     if grap_log_return_cambio_cds:
         st.subheader("Gráficos de Série Temporal do Retorno logaritmo Taxa Cambio e Risco Brasil - CDS")
-    
-    
-    
-    
+
+        df_usado = df_final.copy() 
+
+        df_usado['Data'] = pd.to_datetime(df_usado['Data'], errors='coerce')
+
+        acoes_retornos = ['RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']
+
+        fig, axes = plt.subplots(3, 1, figsize=(15, 18), sharex=False) 
+
+        for i, acao in enumerate(acoes_retornos):
+        
+            sns.lineplot(ax=axes[i], x='Data', y=acao, data=df_usado, color=plt.cm.viridis(i/len(acoes_retornos)))
+            
+            axes[i].set_title(f'Série Temporal do Retorno Logarítmico: {acao}', fontsize=16)
+            axes[i].set_ylabel('Retorno Logarítmico', fontsize=12)
+            axes[i].tick_params(axis='y', labelsize=10)
+            axes[i].grid(True, linestyle='--', alpha=0.7)
+            
+            axes[i].tick_params(axis='x', rotation=45, labelsize=10)
+            
+            axes[i].set_xlabel('Data', fontsize=12) 
+
+            plt.tight_layout()
+
+            st.pyplot(fig)
     
     
     if grap_log_return_stock_prices:
         st.subheader("Gráficos de Série Temporal do Retorno logaritmo dos Preços das Ações", divider="gray")
 
-        df_usado = df_final.copy() # Cria uma cópia para evitar side effects (boa prática)
+        df_usado = df_final.copy() 
 
         df_usado['Data'] = pd.to_datetime(df_usado['Data'], errors='coerce')
 
