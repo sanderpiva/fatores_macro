@@ -233,9 +233,9 @@ if graphs_form_submitted:
             
             axes[i].set_xlabel('Data', fontsize=12) 
 
-            plt.tight_layout()
+        plt.tight_layout()
 
-            st.pyplot(fig)
+        st.pyplot(fig)
     
     
     if grap_log_return_stock_prices:
