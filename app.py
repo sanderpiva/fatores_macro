@@ -113,12 +113,14 @@ data_meaning = '''
 - `Data`: Data de referencia que relaciona os dados (07 out 2020 - 01 out 2025)
 - `Taxa Selic a.a.`: Taxa Selic em porcentual ao ano
 - `Taxa Cambio u.m.c./US$`: Taxa de câmbio unidade monetária corrente/US$
-- `CDS`: Risco Brasil CDS
+- `RETORNO_LOG_CAMBIO`: Calculo retorno logaritmo para a taxa Câmbio
+- `CDS`: Risco Brasil - CDS
+- `RETORNO_LOG_CDS`: Calculo retorno logaritmo para a Risco Brasil - CDS
 - `Itau`: Preco da ação (fechamento) do Itaú
 - `RETORNO_LOG_Itau`: Calculo retorno logaritmo para o preço da ação da Itau
 - `Petrobras`: Preco da ação (fechamento) da Petrobras
 - `RETORNO_LOG_Petrobras`: Calculo retorno logaritmo para o preço da ação da Petrobras
-- `Vale do Rio Doce`: Preco da ação (fechamento) da Vale Rio Doce
+- `Vale do Rio Doce`: Preço da ação (fechamento) da Vale Rio Doce
 - `RETORNO_LOG_Vale Rio Doce`: Calculo retorno logaritmo para o preço da ação da Vale
 '''
 
