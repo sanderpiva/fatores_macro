@@ -218,7 +218,7 @@ if graphs_form_submitted:
 
         acoes_retornos = ['RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS']
 
-        fig, axes = plt.subplots(3, 1, figsize=(15, 18), sharex=False) 
+        fig, axes = plt.subplots(2, 1, figsize=(15, 18), sharex=False) 
 
         for i, acao in enumerate(acoes_retornos):
         
