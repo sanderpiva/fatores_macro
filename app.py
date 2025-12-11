@@ -103,7 +103,7 @@ with graph_expander:
         graphs_form_submitted = st.form_submit_button("Gerar")
 
 # === Página Principal ===
-st.header('Projeto Fatores Macroeconômicos', divider='blue')
+st.header('Modelagem Macroeconômica de Ativos', divider='blue')
 
 # Um markdown de múltiplas linhas
 data_meaning = '''
