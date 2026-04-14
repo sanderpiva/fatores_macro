@@ -25,7 +25,7 @@ def fetch_and_clean_data():
 
 df_parcial, df_final = fetch_and_clean_data()
 
-#
+
 def run_macro_model(df, target_cols, X_cols):
     """
     Roda a Regressão OLS de forma robusta, aceitando uma lista dinâmica de variáveis preditoras (X_cols).
@@ -68,13 +68,11 @@ def run_macro_model(df, target_cols, X_cols):
             
     return results
 
-#
-# --- 2. BARRA LATERAL (Seu Código Adaptado) ---
 st.sidebar.header('Configurações', divider='blue')
 
 data_expander = st.sidebar.expander(label="# **Dados Tabulares**", icon=":material/table:")
 with data_expander:
-    # O form é crucial para agrupar as ações de filtro e só atualizar a tela quando o botão for pressionado
+
     with st.form("settings_form", clear_on_submit=False):
         st.markdown("**Selecione as Visualizações**")
         explain_data = st.checkbox("Significado dos Dados", key="explain")
@@ -85,15 +83,13 @@ with data_expander:
         model_selic_cambio_cds = st.checkbox("Modelo Selic + Câmbio + CDS", key="model_sc_cds")
         model_cambio_cds = st.checkbox("Modelo Câmbio + CDS", key="model_c_cds")
         
-        # O botão de submissão é necessário para que as checagens acima sejam processadas
         settings_form_submitted = st.form_submit_button("Carregar")
 
-#
 
 graph_expander = st.sidebar.expander("# **Gráficos**", icon=":material/monitoring:")
-# st.sidebar.subheader('Gráficos')
+
 with graph_expander:
-    # Formulário dos gráficos
+
     with st.form("graphs_form", clear_on_submit=False):
         
         grap_log_return_cambio_cds = st.checkbox("Gráficos de Série Temporal do Retorno logaritmo da Taxa de Cambio e Risco Brasil - CDS")
@@ -102,10 +98,8 @@ with graph_expander:
         
         graphs_form_submitted = st.form_submit_button("Gerar")
 
-# === Página Principal ===
 st.header('Modelagem Macroeconômica de Ativos', divider='blue')
 
-# Um markdown de múltiplas linhas
 data_meaning = '''
 
 - `Variável`: Significado
@@ -124,15 +118,11 @@ data_meaning = '''
 - `RETORNO_LOG_Vale Rio Doce`: Calculo retorno logaritmo para o preço da ação da Vale
 '''
 
-# Variáveis dependentes (Y) para as 3 ações
-
 acoes_retorno = ['RETORNO_LOG_Itau', 'RETORNO_LOG_Petrobras', 'RETORNO_LOG_Vale Rio Doce'] 
 
-# Variáveis preditoras (X)
 X_macro_sc_cds = ['Taxa Selic - a.a.', 'RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo 1
 X_macro_c_cds = ['RETORNO_LOG_CAMBIO', 'RETORNO_LOG_CDS'] # Modelo Final
 
-# Ao submeter o form de dados tabulares
 if settings_form_submitted:
     if explain_data:
         st.subheader("Dicionário dos Dados", divider="gray")
@@ -205,9 +195,6 @@ if settings_form_submitted:
         st.write("- Ambas as variáveis, (RETORNO_LOG_CAMBIO e RETORNO_LOG_CDS são estatisticamente significativas (p < 0.05) para os três ativos;")
         st.write("- Multicolinearidade aceitável: A multicolinearidade (Cond. No.  ≈121 ) entre Câmbio e CDS indica que eles se movem juntos, dificultando a interpretação isolada do efeito de cada um, porém não a capacidade preditiva do modelo como um todo;")
         st.write("- As tentativas com a combinação Selic + CDS, ou ainda, apenas o CDS não trouxeram poder explicativo relevante.")
-#
-
-# Ao submeter o form de gráficos
 
 if graphs_form_submitted:
     
